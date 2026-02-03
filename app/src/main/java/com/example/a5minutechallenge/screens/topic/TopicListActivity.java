@@ -37,9 +37,13 @@ public class TopicListActivity extends AppCompatActivity {
     private FrameLayout emptyTopicsOverlay;
 
     /**
-     * Initializes the TopicListActivity activity with a topic list for the selected subject.
-     * Sets up the ListView with topics and configures FABs for adding topics and accessing storage.
-     * @param savedInstanceState Bundle containing the activity's previously saved state
+     * Initializes the TopicListActivity activity with a topic list for the selected
+     * subject.
+     * Sets up the ListView with topics and configures FABs for adding topics and
+     * accessing storage.
+     * 
+     * @param savedInstanceState Bundle containing the activity's previously saved
+     *                           state
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,29 +60,15 @@ public class TopicListActivity extends AppCompatActivity {
 
         subject = new Subject(subjectId);
 
-        /// ///////////////////////////////////////////////////////
+        ///
         subject.reloadTopics(getApplicationContext());
-        topicList = subject.getTopics(getApplicationContext());//this list contains items, which is validated
-
-        if (topicList == null) {
-            Toast.makeText(this, "No topics found for this subject.", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Topics located successfully.", Toast.LENGTH_SHORT).show();
-        }
+        topicList = subject.getTopics(getApplicationContext());// this list contains items, which is validated
 
         adapter = new TopicListAdapter(this, topicList);
         topicListView.setAdapter(adapter);
 
-        if (topicListView.getAdapter() == null) {
-            Toast.makeText(this, "Adapter not found", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Adapter found", Toast.LENGTH_SHORT).show();
-        }
-
-        adapter.updateTopics(topicList);//maybe some data is lost here
-        Toast.makeText(this, "List updated", Toast.LENGTH_SHORT).show();
-        /// ///////////////////////////////////////////////////////
-
+        adapter.updateTopics(topicList);// maybe some data is lost here
+        ///
 
         searchBar = findViewById(R.id.topic_search_bar);
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -125,9 +115,8 @@ public class TopicListActivity extends AppCompatActivity {
      * Shows or hides the empty state overlay based on whether there are topics.
      */
     private void updateIsEmptyOverlay() {
-        if (topicList.isEmpty()) {//always seemed to return true; gone smh but i didnt fix it
+        if (topicList.isEmpty()) {// always seemed to return true; gone smh but i didnt fix it
             emptyTopicsOverlay.setVisibility(View.VISIBLE);
-            //Toast.makeText(this, topicList.get(0).getTitle(), Toast.LENGTH_SHORT).show();
         } else {
             emptyTopicsOverlay.setVisibility(View.GONE);
         }
@@ -144,13 +133,14 @@ public class TopicListActivity extends AppCompatActivity {
         updateIsEmptyOverlay();
     }
 
-
     /**
-     * Displays a dialog with edit options (rename/delete) for a topic at the given position.
+     * Displays a dialog with edit options (rename/delete) for a topic at the given
+     * position.
+     * 
      * @param position The position of the topic in the list to edit
      */
     private void showEditOptionsDialog(int position) {
-        final CharSequence[] options = {getString(R.string.rename), getString(R.string.delete)};
+        final CharSequence[] options = { getString(R.string.rename), getString(R.string.delete) };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.choose_option));
@@ -166,6 +156,7 @@ public class TopicListActivity extends AppCompatActivity {
 
     /**
      * Displays a dialog to rename a topic at the given position.
+     * 
      * @param position The position of the topic to rename
      */
     private void showRenameDialog(int position) {
@@ -178,6 +169,7 @@ public class TopicListActivity extends AppCompatActivity {
 
     /**
      * Displays a confirmation dialog before deleting a topic.
+     * 
      * @param position The position of the topic to delete
      */
     private void showDeleteConfirmationDialog(int position) {
@@ -194,12 +186,15 @@ public class TopicListActivity extends AppCompatActivity {
 
     /**
      * Generic dialog for editing text input (add/rename operations).
-     * @param title Dialog title
-     * @param currentName Current text value to display in the input field
+     * 
+     * @param title              Dialog title
+     * @param currentName        Current text value to display in the input field
      * @param positiveButtonText Text for the positive action button
-     * @param listener Callback listener invoked when user enters a valid name
+     * @param listener           Callback listener invoked when user enters a valid
+     *                           name
      */
-    private void showEditDialog(String title, String currentName, String positiveButtonText, OnNameEnteredListener listener) {
+    private void showEditDialog(String title, String currentName, String positiveButtonText,
+            OnNameEnteredListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
 

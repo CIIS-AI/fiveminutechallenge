@@ -126,8 +126,6 @@ public class StorageActivity extends AppCompatActivity {
                             // This is executed on the main thread
                             dismissLoadingDialog();
                             genContentFab.setEnabled(true);
-                            Toast.makeText(StorageActivity.this, "Content generated successfully!", Toast.LENGTH_LONG)
-                                    .show();
 
                             // Navigate to the next screen to show the generated content
                             Intent intent = new Intent(StorageActivity.this, ChallengeListActivity.class);

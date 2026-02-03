@@ -38,7 +38,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class FiveMinuteActivity extends AppCompatActivity implements TimerManager.TimerListener, ContainerInflater.OnContainerItemSelectedListener {
+public class FiveMinuteActivity extends AppCompatActivity
+        implements TimerManager.TimerListener, ContainerInflater.OnContainerItemSelectedListener {
 
     private static final long MIN_ANSWER_TIME_MS = 1000;
     private static final long COMPLETION_DELAY_MS = 800; // Delay before showing "finished" screen
@@ -54,37 +55,38 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
     private ProgressBar timerProgress;
     private View lowTimeOverlay;
     private View correctFlashOverlay;
-    
+
     private ScoreManager scoreManager;
     private TimerManager timerManager;
     private GestureDetector gestureDetector;
-    
+
     private List<ContentContainer> contentContainers;
     private int currentContainerIndex = 0;
     private boolean currentAnswerChecked = false;
     private int totalInteractiveContainers = 0;
     private int correctAnswersCount = 0;
     private boolean lastAnswerWasCorrect = false;
-    private int recapIdCounter = 10000; // init value for generating unique recap container IDs, 10k is kust random value
-    
+    private int recapIdCounter = 10000; // init value for generating unique recap container IDs, 10k is kust random
+                                        // value
+
     private String topicName;
     private int subjectId;
-    private int challengePosition = -1; //first challenge pos, -1 if not from challenge list
+    private int challengePosition = -1; // first challenge pos, -1 if not from challenge list
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_five_minute);
 
-        initViews();//realize all view instances needed for the screen
-        initData();//get topic, subject name from intent
-        initGamification();//init scoremanager and timermanager, start timer
-        initGestureDetector();//init swipe detection
-        loadContent();//display first container
+        initViews();// realize all view instances needed for the screen
+        initData();// get topic, subject name from intent
+        initGamification();// init scoremanager and timermanager, start timer
+        initGestureDetector();// init swipe detection
+        loadContent();// display first container
     }
-    
+
     private void initViews() {
-        currentContainerLayout = findViewById(R.id.current_container);//nested layout in five_minute_activity.xml
+        currentContainerLayout = findViewById(R.id.current_container);// nested layout in five_minute_activity.xml
         checkButton = findViewById(R.id.check_button);
         timerText = findViewById(R.id.timer_text);
         scoreDisplay = findViewById(R.id.score_display);
@@ -95,7 +97,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         timerProgress = findViewById(R.id.timer_progress);
         lowTimeOverlay = findViewById(R.id.low_time_overlay);
         correctFlashOverlay = findViewById(R.id.correct_flash_overlay);
-        
+
         checkButton.setOnClickListener(v -> onCheckButtonClicked());
     }
 
@@ -108,13 +110,12 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             topicName = "Default Topic";
         }
     }
-    
+
     private void initGamification() {
         scoreManager = new ScoreManager();
         timerManager = new TimerManager(this);
 
-        
-        //timer start w delay
+        // timer start w delay
         timerText.postDelayed(() -> timerManager.start(), 3000);
     }
 
@@ -128,12 +129,13 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null || e2 == null) return false;
+                if (e1 == null || e2 == null)
+                    return false;
 
                 float diffY = e2.getY() - e1.getY();
                 float diffX = e2.getX() - e1.getX();
 
-                //vertical?
+                // vertical?
                 if (Math.abs(diffY) > Math.abs(diffX)) {
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffY < 0) {
@@ -146,7 +148,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 return false;
             }
 
-            //gestureDetector needs onDown: true to track gesture
+            // gestureDetector needs onDown: true to track gesture
             @Override
             public boolean onDown(MotionEvent e) {
                 return true;
@@ -155,7 +157,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
         View contentArea = findViewById(R.id.content_container_area);
         contentArea.setOnTouchListener((v, event) -> {
-            //throughput event to gesture detector,
+            // throughput event to gesture detector,
             // dont consume touch so the nested container view can work with it
             // as well
             gestureDetector.onTouchEvent(event);
@@ -163,15 +165,15 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         });
     }
 
-
     /**
      * Loads and displays the content containers for this lesson.
      */
     private void loadContent() {
-        //content from ContentContainerDataLoader based on subject topic challenge and start index
+        // content from ContentContainerDataLoader based on subject topic challenge and
+        // start index
         contentContainers = ContentContainerDataLoader.loadContent(this, subjectId, topicName, challengePosition, 0);
 
-        //total interactive containers for progress bar
+        // total interactive containers for progress bar
         for (ContentContainer c : contentContainers) {
             switch (c.getType()) {
                 case MULTIPLE_CHOICE_QUIZ:
@@ -187,7 +189,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             }
         }
 
-        //init container display
+        // init container display
         if (!contentContainers.isEmpty()) {
             displayContainer(currentContainerIndex);
         }
@@ -195,35 +197,40 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
     /**
      * Displays the content container at the specified index.
+     * 
      * @param index The index of the container to display
      */
     private void displayContainer(int index) {
         if (index < 0 || index >= contentContainers.size()) {
             return;
         }
-        
+
         ContentContainer container = contentContainers.get(index);
-        
+
         // Reset answer checked state for new container
         currentAnswerChecked = false;
-        
+
         // Inflate and display vurrent container
         currentContainerLayout.removeAllViews();
         View containerView = inflateContainerView(container);
         currentContainerLayout.addView(containerView);
-        
-        /*// Display preview of next container if available, ill leave it here as an idea but this is not intended to be used
-        if (index + 1 < contentContainers.size()) {
-            ContentContainer nextContainer = contentContainers.get(index + 1);
-            nextContainerLayout.removeAllViews();
-            View nextView = inflateContainerView(nextContainer);
-            nextContainerLayout.addView(nextView);
-            nextContainerPreview.setVisibility(View.VISIBLE);
-        } else {
-            nextContainerPreview.setVisibility(View.GONE);
-        }*/
-        
-        // Update button text based on container type -> "check" or "next", hoping to make this unnecessary
+
+        /*
+         * // Display preview of next container if available, ill leave it here as an
+         * idea but this is not intended to be used
+         * if (index + 1 < contentContainers.size()) {
+         * ContentContainer nextContainer = contentContainers.get(index + 1);
+         * nextContainerLayout.removeAllViews();
+         * View nextView = inflateContainerView(nextContainer);
+         * nextContainerLayout.addView(nextView);
+         * nextContainerPreview.setVisibility(View.VISIBLE);
+         * } else {
+         * nextContainerPreview.setVisibility(View.GONE);
+         * }
+         */
+
+        // Update button text based on container type -> "check" or "next", hoping to
+        // make this unnecessary
         updateCheckButtonText(container);
     }
 
@@ -233,6 +240,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
      * This right here may seem duplicate but i think
      * its good to keep it around in case i ever want to add something
      * to this algorithm
+     * 
      * @param container The content container
      * @return The inflated view
      */
@@ -243,8 +251,9 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
     /**
      * Updates the check button text based on container type.
-     *  Im also hoping to make this redundant by automatically checking responses
-     *  and swiping up to progress to the next container
+     * Im also hoping to make this redundant by automatically checking responses
+     * and swiping up to progress to the next container
+     * 
      * @param container The current content container
      */
     private void updateCheckButtonText(ContentContainer container) {
@@ -260,13 +269,12 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         }
     }
 
-
     /**
      * Handles the check button click or swipe event.
      */
     private void onCheckButtonClicked() {
         ContentContainer currentContainerGeneric = contentContainers.get(currentContainerIndex);
-        
+
         // For RECAP containers, check the wrapped container type instead
         ContentContainer containerToCheck = currentContainerGeneric;
         if (currentContainerGeneric.getType() == ContentContainer.Types.RECAP) {
@@ -275,7 +283,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 containerToCheck = recapContainer.getWrappedContainer();
             }
         }
-        
+
         // Determine if this container requires user response
         boolean userResponseExpected = false;
         switch (containerToCheck.getType()) {
@@ -291,7 +299,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 userResponseExpected = false;
                 break;
         }
-        
+
         // If user response is expected and answer hasn't been checked yet, check it
         if (userResponseExpected && !currentAnswerChecked) {
             checkAnswer();
@@ -299,7 +307,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             checkButton.setText(R.string.next_question);
             return; // Don't progress yet
         }
-        
+
         // Otherwise, progress to next container
         progressToNextContainer();
     }
@@ -310,7 +318,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
     private void checkAnswer() {
         ContentContainer currentContainerGeneric = contentContainers.get(currentContainerIndex);
         View containerView = currentContainerLayout.getChildAt(0);
-        
+
         // For RECAP containers, check the wrapped container instead
         ContentContainer containerToCheck = currentContainerGeneric;
         if (currentContainerGeneric.getType() == ContentContainer.Types.RECAP) {
@@ -324,37 +332,40 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 }
             }
         }
-        
+
         // For interactive containers (quizzes, etc.), validate the answer
         boolean isCorrect = false;
-        
+
         switch (containerToCheck.getType()) {
             case MULTIPLE_CHOICE_QUIZ:
                 ContainerMultipleChoiceQuiz currentContainer = (ContainerMultipleChoiceQuiz) containerToCheck;
                 isCorrect = currentContainer.isCorrect();
-                
+
                 // Update UI with correct/incorrect colors
                 RecyclerView mcqRecyclerView = containerView.findViewById(R.id.options_recycler_view);
                 if (mcqRecyclerView != null) {
-                    ContentContainerAdapter adapter = (ContentContainerAdapter) mcqRecyclerView.getTag(R.id.options_recycler_view);
+                    ContentContainerAdapter adapter = (ContentContainerAdapter) mcqRecyclerView
+                            .getTag(R.id.options_recycler_view);
                     if (adapter != null) {
-                        adapter.revealAnswers(currentContainer.getCorrectAnswerIndices(), currentContainer.getUserSelectedIndices());
+                        adapter.revealAnswers(currentContainer.getCorrectAnswerIndices(),
+                                currentContainer.getUserSelectedIndices());
                     }
                 }
                 break;
             case REVERSE_QUIZ:
                 ContainerReverseQuiz reverseQuizContainer = (ContainerReverseQuiz) containerToCheck;
-                isCorrect = (reverseQuizContainer.getUserSelectedIndex() == reverseQuizContainer.getCorrectQuestionIndex());
-                
+                isCorrect = (reverseQuizContainer.getUserSelectedIndex() == reverseQuizContainer
+                        .getCorrectQuestionIndex());
+
                 // Update UI with correct/incorrect colors
                 RecyclerView reverseRecyclerView = containerView.findViewById(R.id.question_options_recycler_view);
                 if (reverseRecyclerView != null) {
-                    ContentContainerAdapter adapter = (ContentContainerAdapter) reverseRecyclerView.getTag(R.id.question_options_recycler_view);
+                    ContentContainerAdapter adapter = (ContentContainerAdapter) reverseRecyclerView
+                            .getTag(R.id.question_options_recycler_view);
                     if (adapter != null) {
                         adapter.revealAnswers(
-                            Collections.singletonList(reverseQuizContainer.getCorrectQuestionIndex()),
-                            Collections.singletonList(reverseQuizContainer.getUserSelectedIndex())
-                        );
+                                Collections.singletonList(reverseQuizContainer.getCorrectQuestionIndex()),
+                                Collections.singletonList(reverseQuizContainer.getUserSelectedIndex()));
                     }
                 }
                 break;
@@ -368,35 +379,46 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 // No visual feedback needed for sorting - the order itself is the feedback
                 break;
             case ERROR_SPOTTING:
-                //This container is broken for some reason and I dont have the Time to find a satisfactory fix.
-                //Thus, it'll be marked as "correct" and excluded from all other pipeline steps.
-                /*ContainerErrorSpotting errorSpottingContainer = (ContainerErrorSpotting) containerToCheck;
-                isCorrect = (errorSpottingContainer.getUserSelectedIndex() == errorSpottingContainer.getErrorIndex());
-                
-                // Update UI with correct/incorrect colors
-                RecyclerView errorRecyclerView = containerView.findViewById(R.id.items_recycler_view);
-                if (errorRecyclerView != null) {
-                    ContentContainerAdapter adapter = (ContentContainerAdapter) errorRecyclerView.getTag(R.id.items_recycler_view);
-                    if (adapter != null) {
-                        adapter.revealAnswers(
-                            Collections.singletonList(errorSpottingContainer.getErrorIndex()),
-                            Collections.singletonList(errorSpottingContainer.getUserSelectedIndex())
-                        );
-                    }
-                }*/
+                // This container is broken for some reason and I dont have the Time to find a
+                // satisfactory fix.
+                // Thus, it'll be marked as "correct" and excluded from all other pipeline
+                // steps.
+                /*
+                 * ContainerErrorSpotting errorSpottingContainer = (ContainerErrorSpotting)
+                 * containerToCheck;
+                 * isCorrect = (errorSpottingContainer.getUserSelectedIndex() ==
+                 * errorSpottingContainer.getErrorIndex());
+                 * 
+                 * // Update UI with correct/incorrect colors
+                 * RecyclerView errorRecyclerView =
+                 * containerView.findViewById(R.id.items_recycler_view);
+                 * if (errorRecyclerView != null) {
+                 * ContentContainerAdapter adapter = (ContentContainerAdapter)
+                 * errorRecyclerView.getTag(R.id.items_recycler_view);
+                 * if (adapter != null) {
+                 * adapter.revealAnswers(
+                 * Collections.singletonList(errorSpottingContainer.getErrorIndex()),
+                 * Collections.singletonList(errorSpottingContainer.getUserSelectedIndex())
+                 * );
+                 * }
+                 * }
+                 */
                 isCorrect = true;
                 break;
             case WIRE_CONNECTING:
-                //This container is broken for some reason and I dont have the Time to find a satisfactory fix.
-                //Thus, it'll be marked as "correct" automatically and excluded from all other pipeline steps.
-                //ContainerWireConnecting wireConnectingContainer = (ContainerWireConnecting) containerToCheck;
+                // This container is broken for some reason and I dont have the Time to find a
+                // satisfactory fix.
+                // Thus, it'll be marked as "correct" automatically and excluded from all other
+                // pipeline steps.
+                // ContainerWireConnecting wireConnectingContainer = (ContainerWireConnecting)
+                // containerToCheck;
                 isCorrect = true;
                 break;
             case QUIZ:
-                //deprecated
+                // deprecated
                 break;
         }
-        
+
         onAnswer(isCorrect);
     }
 
@@ -405,10 +427,10 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
      * Calls checkLessonComplete() if there are no more containers
      */
     private void progressToNextContainer() {
-        if (currentContainerIndex < contentContainers.size() - 1) {//if there are more containers to show
+        if (currentContainerIndex < contentContainers.size() - 1) {// if there are more containers to show
             // Show transition time display during swipe animation
             showTransitionTimeDisplay();
-            
+
             // Animate current container sliding up and fading out
             Animation slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up_out);
             slideUp.setAnimationListener(new Animation.AnimationListener() {
@@ -426,7 +448,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                     Animation slideIn = AnimationUtils.loadAnimation(FiveMinuteActivity.this, R.anim.slide_up_in);
                     slideIn.setAnimationListener(new Animation.AnimationListener() {
                         @Override
-                        public void onAnimationStart(Animation animation) {}
+                        public void onAnimationStart(Animation animation) {
+                        }
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
@@ -436,7 +459,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animation animation) {}
+                        public void onAnimationRepeat(Animation animation) {
+                        }
                     });
                     currentContainerLayout.startAnimation(slideIn);
                 }
@@ -446,8 +470,9 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 }
             });
             currentContainerLayout.startAnimation(slideUp);
-        } else { //last container, finish lesson
-            // Add delay to allow UI animations (progress, score updates) to complete before showing finished screen
+        } else { // last container, finish lesson
+            // Add delay to allow UI animations (progress, score updates) to complete before
+            // showing finished screen
             checkButton.setEnabled(false);
             currentContainerLayout.postDelayed(() -> checkLessonComplete(false), COMPLETION_DELAY_MS);
         }
@@ -483,12 +508,12 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
     /**
      * Records an answer and updates the score display.
-
+     * 
      * @param isCorrect Wether the answer was correct or not
      */
     public void onAnswer(boolean isCorrect) {
         lastAnswerWasCorrect = isCorrect;
-        
+
         if (isCorrect) {
             correctAnswersCount++;
             int points = scoreManager.recordCorrectAnswer();
@@ -503,31 +528,33 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             // Play bounce animation on score display
             Animation bounce = AnimationUtils.loadAnimation(this, R.anim.bounce);
             scoreDisplay.startAnimation(bounce);
-        }
-        else {// !isCorrect
+        } else {// !isCorrect
             scoreManager.recordIncorrectAnswer();
             updateStreakDisplay();
 
             // Shake animation for incorrect answer
             Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
             scoreDisplay.startAnimation(shake);
-            
+
             // Queue current container for recap
             addCurrentContainerToRecap();
         }
     }
 
     /**
-     * Adds the current container wrapped in a recap container to the end of the pipeline.
-     * For recap containers, adds a fresh copy of the wrapped container without nesting.
+     * Adds the current container wrapped in a recap container to the end of the
+     * pipeline.
+     * For recap containers, adds a fresh copy of the wrapped container without
+     * nesting.
      */
     private void addCurrentContainerToRecap() {
 
         ContentContainer currentContainer = contentContainers.get(currentContainerIndex);
-        if(currentContainer.getType() == ContentContainer.Types.WIRE_CONNECTING || currentContainer.getType() == ContentContainer.Types.ERROR_SPOTTING) {
+        if (currentContainer.getType() == ContentContainer.Types.WIRE_CONNECTING
+                || currentContainer.getType() == ContentContainer.Types.ERROR_SPOTTING) {
             return;
         }
-        
+
         // If the current container is already a recap, extract its wrapped container
         // to avoid nesting recap containers
         ContentContainer containerToRecap = currentContainer;
@@ -538,11 +565,11 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 return; // No wrapped container to recap
             }
         }
-        
+
         // Create a new recap container wrapping a fresh copy of the container
         ContainerRecap newRecapContainer = new ContainerRecap(recapIdCounter++);
         newRecapContainer.setRecapTitle(getString(R.string.recap) + ": " + getString(R.string.review_time));
-        
+
         // Create a fresh copy of the container for recap (resets user selections)
         ContentContainer freshContainer = createFreshContainerCopy(containerToRecap);
         if (freshContainer != null) {
@@ -550,7 +577,6 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             contentContainers.add(newRecapContainer);
         }
     }
-
 
     /**
      * Creates a fresh copy of a container with user selections reset.
@@ -608,7 +634,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
     private void updateCorrectAnswersProgress() {
         if (totalInteractiveContainers > 0) {
             int targetProgress = (correctAnswersCount * 100) / totalInteractiveContainers;
-            ObjectAnimator progressAnimator = ObjectAnimator.ofInt(timerProgress, "progress", timerProgress.getProgress(), targetProgress);
+            ObjectAnimator progressAnimator = ObjectAnimator.ofInt(timerProgress, "progress",
+                    timerProgress.getProgress(), targetProgress);
             progressAnimator.setDuration(500);
             progressAnimator.setInterpolator(new DecelerateInterpolator());
             progressAnimator.start();
@@ -642,7 +669,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             Animation popupAnim = AnimationUtils.loadAnimation(this, R.anim.score_popup);
             popupAnim.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation) {}
+                public void onAnimationStart(Animation animation) {
+                }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
@@ -650,7 +678,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation) {}
+                public void onAnimationRepeat(Animation animation) {
+                }
             });
             timeBonusPopup.startAnimation(popupAnim);
         }
@@ -658,20 +687,22 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
     /**
      * Displays a score popup animation with the points earned.
+     * 
      * @param points Points to display
      */
     private void showScorePopup(int points) {
         String text = "+" + points;
-        
+
         scorePopup.setText(text);
         scorePopup.setAlpha(1f); // Reset alpha in case previous animation left it at 0
         scorePopup.setVisibility(View.VISIBLE);
 
-        //animate score popup
+        // animate score popup
         Animation popupAnim = AnimationUtils.loadAnimation(this, R.anim.score_popup);
         popupAnim.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {}
+            public void onAnimationStart(Animation animation) {
+            }
 
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -679,7 +710,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
         scorePopup.startAnimation(popupAnim);
     }
@@ -687,12 +719,16 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
     /**
      * Updates the score display text.
      */
-    private void updateScoreDisplay() {scoreDisplay.setText("Score: " + scoreManager.getTotalScore());}
+    private void updateScoreDisplay() {
+        scoreDisplay.setText("Score: " + scoreManager.getTotalScore());
+    }
 
     /**
      * Updates the timer display text.
      */
-    private void updateTimerDisplay() {timerText.setText(timerManager.getFormattedTime());}
+    private void updateTimerDisplay() {
+        timerText.setText(timerManager.getFormattedTime());
+    }
 
     /**
      * Updates the streak indicator visibility and text.
@@ -702,7 +738,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         if (streak > 1) {
             streakIndicator.setText("🔥 Streak: " + streak);
             streakIndicator.setVisibility(View.VISIBLE);
-            
+
             Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
             streakIndicator.startAnimation(pulse);
         } else {
@@ -717,13 +753,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         timerManager.stop();
 
         int accuracyBonus = scoreManager.addAccuracyBonus();
-        if(timeOver) {
-            Toast.makeText(this, "Time's up!", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            Toast.makeText(this, "Lesson Complete!", Toast.LENGTH_SHORT).show();
-        }
-        
+
         Intent intent = new Intent(this, LessonOverActivity.class);
         intent.putExtra("TOTAL_SCORE", scoreManager.getTotalScore());
         intent.putExtra("ACCURACY", scoreManager.getAccuracy());
@@ -732,9 +762,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         intent.putExtra("SUBJECT_ID", subjectId);
         intent.putExtra("TOPIC_NAME", topicName);
         intent.putExtra("CHALLENGE_POSITION", challengePosition);
-        
-        startActivity(intent);
 
+        startActivity(intent);
 
         finish();
     }
@@ -745,17 +774,17 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         runOnUiThread(() -> {
             updateTimerDisplay();
             // Note: timerProgress is now used for correct answers, not time
-            
+
             // Change timer color based on remaining time
             if (timerManager.isCritical()) {
                 timerText.setTextColor(getColor(R.color.timer_low));
-                
+
                 // Show low time overlay with animation
                 if (lowTimeOverlay != null && lowTimeOverlay.getVisibility() != View.VISIBLE) {
                     lowTimeOverlay.setVisibility(View.VISIBLE);
                     lowTimeOverlay.animate().alpha(0.5f).setDuration(1000).start();
                 }
-                
+
                 // Pulse animation when critical
                 if (remainingSeconds % 2 == 0 && timerText.getAnimation() == null) {
                     Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
@@ -769,7 +798,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                     lowTimeOverlay.setAlpha(0f);
                 }
                 if (lowTimeOverlay != null) {
-                    float warningAlpha = ((float) TimerManager.WARNING_TIME - remainingSeconds) / (float) TimerManager.WARNING_TIME * 0.3f;
+                    float warningAlpha = ((float) TimerManager.WARNING_TIME - remainingSeconds)
+                            / (float) TimerManager.WARNING_TIME * 0.3f;
                     lowTimeOverlay.setAlpha(warningAlpha);
                 }
             } else {// lowTimeOverlay = null
@@ -789,7 +819,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
 
     @Override
     public void onTimerStateChanged(boolean isRunning) {
-        //pause/resume UI feedback here? -> not implemented due to timely limitations
+        // pause/resume UI feedback here? -> not implemented due to timely limitations
     }
 
     @Override
@@ -803,7 +833,7 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
         // Get the current container view and its RecyclerView
         View containerView = currentContainerLayout.getChildAt(0);
         ContentContainerAdapter adapter = null;
-        
+
         switch (container.getType()) {
             case MULTIPLE_CHOICE_QUIZ:
                 ContainerMultipleChoiceQuiz mcqContainer = (ContainerMultipleChoiceQuiz) container;
@@ -811,19 +841,21 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 if (mcqRecyclerView != null) {
                     adapter = (ContentContainerAdapter) mcqRecyclerView.getTag(R.id.options_recycler_view);
                 }
-                
+
                 if (mcqContainer.isAllowMultipleAnswers()) {
-                    //Toggle selection for multiple answer mode
+                    // Toggle selection for multiple answer mode
                     if (mcqContainer.getUserSelectedIndices().contains(position)) {
                         mcqContainer.removeUserSelectedIndex(position);
                     } else {
                         mcqContainer.addUserSelectedIndex(position);
                     }
-                    if (adapter != null) adapter.toggleSelection(position);
+                    if (adapter != null)
+                        adapter.toggleSelection(position);
                 } else {
-                    //Single answer, adding an option clears previous
+                    // Single answer, adding an option clears previous
                     mcqContainer.addUserSelectedIndex(position);
-                    if (adapter != null) adapter.setSingleSelection(position);
+                    if (adapter != null)
+                        adapter.setSingleSelection(position);
                 }
                 break;
             case REVERSE_QUIZ:
@@ -832,7 +864,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 RecyclerView reverseRecyclerView = containerView.findViewById(R.id.question_options_recycler_view);
                 if (reverseRecyclerView != null) {
                     adapter = (ContentContainerAdapter) reverseRecyclerView.getTag(R.id.question_options_recycler_view);
-                    if (adapter != null) adapter.setSingleSelection(position);
+                    if (adapter != null)
+                        adapter.setSingleSelection(position);
                 }
                 break;
             case ERROR_SPOTTING:
@@ -841,7 +874,8 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 RecyclerView errorRecyclerView = containerView.findViewById(R.id.items_recycler_view);
                 if (errorRecyclerView != null) {
                     adapter = (ContentContainerAdapter) errorRecyclerView.getTag(R.id.items_recycler_view);
-                    if (adapter != null) adapter.setSingleSelection(position);
+                    if (adapter != null)
+                        adapter.setSingleSelection(position);
                 }
                 break;
             case FILL_IN_THE_GAPS:
@@ -849,13 +883,13 @@ public class FiveMinuteActivity extends AppCompatActivity implements TimerManage
                 gapsContainer.setUserSelectedWordIndex(position);
                 break;
             case WIRE_CONNECTING:
-                //postponed
+                // postponed
                 break;
             case SORTING_TASK:
-                //postponed
+                // postponed
                 break;
             default:
-                //No action needed for other container types
+                // No action needed for other container types
                 break;
         }
     }

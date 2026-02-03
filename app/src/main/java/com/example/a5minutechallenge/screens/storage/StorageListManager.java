@@ -34,7 +34,8 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
         void onItemLongClick(int position);
     }
 
-    public StorageListManager(Context context, ArrayList<StorageListItem> storageItems, OnItemLongClickListener longClickListener) {
+    public StorageListManager(Context context, ArrayList<StorageListItem> storageItems,
+            OnItemLongClickListener longClickListener) {
         this.context = context;
         this.allItems = storageItems;
         this.filteredItems = new ArrayList<>(storageItems);
@@ -74,6 +75,7 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
 
     /**
      * Filters the storage list based on the search query.
+     * 
      * @param query The search query string
      */
     public void filter(String query) {
@@ -106,7 +108,8 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
      * This ensures filteredItems is synchronized with allItems when not filtering.
      */
     public void notifyItemsChanged() {
-        // If no filter is active (search bar is empty), sync filteredItems with allItems
+        // If no filter is active (search bar is empty), sync filteredItems with
+        // allItems
         filteredItems.clear();
         filteredItems.addAll(allItems);
         notifyDataSetChanged();
@@ -114,11 +117,11 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
 
     /**
      * Opens a file using the appropriate application
+     * 
      * @param subjectFile The SubjectFile to open
      */
     private void openFile(SubjectFile subjectFile) {
         if (subjectFile == null || !subjectFile.exists()) {
-            Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -126,8 +129,7 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
         Uri fileUri = FileProvider.getUriForFile(
                 context,
                 context.getPackageName() + ".fileprovider",
-                file
-        );
+                file);
 
         // Determine MIME type based on file extension
         String mimeType = getMimeType(subjectFile.getFileName());
@@ -139,12 +141,12 @@ public class StorageListManager extends RecyclerView.Adapter<StorageListManager.
         try {
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(context, "No application found to open this file", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
      * Determines MIME type based on file extension
+     * 
      * @param fileName The file name
      * @return The MIME type as a string
      */

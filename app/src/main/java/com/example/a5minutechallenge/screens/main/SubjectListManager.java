@@ -33,9 +33,11 @@ public class SubjectListManager extends RecyclerView.Adapter<SubjectListManager.
     }
 
     /**
-     * Constructs a SubjectListManager with context, subject data, and click listeners.
-     * @param context The application context
-     * @param subjects The list of subjects to display
+     * Constructs a SubjectListManager with context, subject data, and click
+     * listeners.
+     * 
+     * @param context           The application context
+     * @param subjects          The list of subjects to display
      * @param longClickListener Callback for long-click events on items
      */
     public SubjectListManager(Context context, ArrayList<Subject> subjects, OnItemLongClickListener longClickListener) {
@@ -47,7 +49,8 @@ public class SubjectListManager extends RecyclerView.Adapter<SubjectListManager.
 
     /**
      * Creates a new ViewHolder for subject list items by inflating the layout.
-     * @param parent The parent ViewGroup
+     * 
+     * @param parent   The parent ViewGroup
      * @param viewType The view type of the new View
      * @return A new ViewHolder instance
      */
@@ -61,7 +64,8 @@ public class SubjectListManager extends RecyclerView.Adapter<SubjectListManager.
     /**
      * Binds subject data to the ViewHolder at the specified position.
      * Sets up click and long-click listeners for navigation and edit operations.
-     * @param holder The ViewHolder to bind data to
+     * 
+     * @param holder   The ViewHolder to bind data to
      * @param position The position of the item in the list
      */
     @Override
@@ -110,7 +114,6 @@ public class SubjectListManager extends RecyclerView.Adapter<SubjectListManager.
         holder.progress.setProgress(subject.getProgressPercentage());
 
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(context, "Subject ID: " + subject.getSubjectId(), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context, TopicListActivity.class);
             intent.putExtra("SUBJECT_ID", subject.getSubjectId());
             intent.putExtra("SUBJECT_TITLE", subject.getTitle());
@@ -133,6 +136,7 @@ public class SubjectListManager extends RecyclerView.Adapter<SubjectListManager.
 
     /**
      * Filters the subject list based on the search query.
+     * 
      * @param query The search query string
      */
     public void filter(String query) {

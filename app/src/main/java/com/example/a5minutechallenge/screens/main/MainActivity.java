@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
         // Data Population
         subjectList = new ArrayList<>();
 
-        ///
+        //
         SubjectGenerationService myService = new SubjectGenerationService();
         subjectIds = myService.getAllSubjectIDs(this);
-        ///
+        //
 
         for (int id : subjectIds) {
             Subject subject = new Subject(id);
@@ -70,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
         searchBar = findViewById(R.id.subject_search_bar);
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -78,18 +79,20 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         FloatingActionButton addSubjectFab = findViewById(R.id.add_subject_button);
         addSubjectFab.setOnClickListener(v -> showAddSubjectDialog());
 
         // Setup light mode toggle (functionality not yet implemented)
-        /*lightModeSwitch = findViewById(R.id.light_mode_switch);
-        lightModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Light mode functionality will be implemented in a future update
-            Toast.makeText(this, "Light mode coming soon!", Toast.LENGTH_SHORT).show();
-        });*/
+        /*
+         * lightModeSwitch = findViewById(R.id.light_mode_switch);
+         * lightModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+         * // Light mode functionality will be implemented in a future update
+         * });
+         */
     }
 
     @Override
