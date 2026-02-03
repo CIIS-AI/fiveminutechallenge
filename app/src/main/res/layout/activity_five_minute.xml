@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background">
+
+    <!-- Low time overlay (cinematic red gradient) -->
+    <View
+        android:id="@+id/low_time_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/low_time_gradient"
+        android:alpha="0"
+        android:visibility="gone" />
+
+    <!-- Timer Container -->
+    <LinearLayout
+        android:id="@+id/timer_container"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/surface"
+        android:elevation="@dimen/elevation_md"
+        android:padding="@dimen/spacing_md"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Header bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/timer_text"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="5:00"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_size_md"
+                android:fontFamily="sans-serif-medium" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/score_display"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score: 0"
+                android:textColor="@color/score_gold"
+                android:textSize="@dimen/text_size_lg"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
+
+        </LinearLayout>
+
+        <!-- Correct Answers Progress Bar (replaced timer bar) -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/timer_height_thick"
+            android:layout_marginTop="@dimen/spacing_sm">
+
+            <ProgressBar
+                android:id="@+id/timer_progress_background"
+
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:max="100"
+                android:progress="100"
+                android:progressDrawable="@drawable/timer_background" />
+
+            <ProgressBar
+                android:id="@+id/timer_progress"
+
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_correct_answers" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/streak_indicator"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_md"
+
+        android:background="@drawable/card_elevated"
+        android:padding="@dimen/spacing_sm"
+        android:text="Streak: 0"
+        android:textColor="@color/streak_fire"
+
+        android:textSize="@dimen/text_size_sm"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation_xl"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+
+    <!-- Time bonus popup -->
+    <TextView
+        android:id="@+id/time_bonus_popup"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_md"
+
+        android:background="@drawable/card_elevated"
+        android:padding="@dimen/spacing_sm"
+        android:text="+10s"
+        android:textColor="@color/secondary"
+
+        android:textSize="@dimen/text_size_md"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation_xl"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+
+    <TextView
+        android:id="@+id/score_popup"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textColor="@color/score_gold"
+        android:textSize="@dimen/text_size_xxl"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation_xl"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Transition time display (shown during swipe animation) -->
+    <TextView
+        android:id="@+id/transition_time_display"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:background="@drawable/card_elevated"
+        android:padding="@dimen/spacing_md"
+        android:text="4:59"
+        android:textColor="@color/text_primary"
+
+        android:textSize="@dimen/text_size_xxl"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation_xl"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Correct answer flash overlay -->
+    <View
+        android:id="@+id/correct_flash_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/success"
+        android:alpha="0"
+        android:visibility="gone" />
+
+    <!-- Content Container Area - Scrollable for long content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/content_container_area"
+
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@+id/check_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timer_container">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Current Content Container -->
+            <FrameLayout
+                android:id="@+id/current_container"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/elevation_md" />
+
+
+
+            <!-- Next Content Preview (an idea but ultimately not in use) -->
+<!--            <FrameLayout-->
+<!--                android:id="@+id/next_container_preview"-->
+
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+
+<!--                android:alpha="0.3">-->
+
+<!--                <FrameLayout-->
+<!--                    android:id="@+id/next_container"-->
+
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent" />-->
+
+<!--                <View-->
+<!--                    android:id="@+id/fadeout_overlay"-->
+
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:background="@drawable/fadeout_gradient" />-->
+
+<!--            </FrameLayout>-->
+
+        </FrameLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Check/Next Button - Made bigger -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/check_button"
+
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height_large"
+        android:layout_margin="@dimen/spacing_md"
+        android:text="@string/check_answer"
+        android:textSize="@dimen/text_size_lg"
+        android:textStyle="bold"
+        app:icon="@android:drawable/ic_menu_upload"
+        app:iconGravity="end"
+        app:cornerRadius="@dimen/corner_radius_lg"
+        app:backgroundTint="@color/accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
